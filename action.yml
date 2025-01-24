@@ -40,10 +40,14 @@ inputs:
     description: 'The location of the Dockerfile to be used for the build.'
     default: '.'
     required: false
+  skip-checkout:
+    description: 'Skip the checkout step if files are already present'
+    default: 'false'
 runs:
   using: 'composite'
   steps:
     - name: Checkout
+      if: ${{ inputs.skip-checkout != 'true' }}
       uses: actions/checkout@v3
       with:
         fetch-depth: 0 #Number of commits to fetch. 0 indicates all history for all branches and tags
@@ -200,7 +204,7 @@ runs:
         path: '*amd64.tar'
 
     - name: Upload docker image for release
-      uses: svenstaro/upload-release-action@v3
+      uses: svenstaro/upload-release-action@v2
       if: startsWith(github.ref, 'refs/tags') && success()
       with:
         repo_token: ${{ inputs.github-token }}
